@@ -34,4 +34,4 @@ Configurations:
 - `Debug`: console logs
 
 # Licenese
-
+This project is licensed under the MIT License.
