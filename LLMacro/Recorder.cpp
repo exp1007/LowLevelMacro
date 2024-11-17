@@ -122,13 +122,23 @@ void playKeyboardInput(size_t& index) {
 	INPUT ip;
 
 	// Set up a generic keyboard event
+	//ip.type = INPUT_KEYBOARD;
+	//ip.ki.wScan = 0; // Hardware scan code for key , null if we use vk key
+	//ip.ki.time = 0;
+	//ip.ki.dwExtraInfo = 0;
+
+	//// // Set up keyboard event
+	//ip.ki.wVk = eventsVec[index]->input;
+	//ip.ki.dwFlags = eventsVec[index]->state;
+
 	ip.type = INPUT_KEYBOARD;
-	ip.ki.wScan = 0; // Hardware scan code for key , null if we use vk key
+	ip.ki.wVk = 0;
+	
 	ip.ki.time = 0;
 	ip.ki.dwExtraInfo = 0;
 
 	// // Set up keyboard event
-	ip.ki.wVk = eventsVec[index]->input;
+	ip.ki.wScan = eventsVec[index]->input;
 	ip.ki.dwFlags = eventsVec[index]->state;
 
 	SendInput(1, &ip, sizeof(INPUT));
@@ -147,34 +157,33 @@ void playKeyboardInput(size_t& index) {
 
 void playThread() {
 
-	for (size_t index = 0; index < eventsVec.size(); index++) {
-		if (playing == false)
-			return;
+	while (playing == true) {
+		std::cout << "Playback started" << std::endl;
 
-		if (eventsVec[index]->eventType == false)
-			playMouseInput(index);
-		else
-			playKeyboardInput(index);
+		for (size_t index = 0; index < eventsVec.size(); index++) {
+			if (playing == false)
+				return;
+
+			if (eventsVec[index]->eventType == false)
+				playMouseInput(index);
+			else
+				playKeyboardInput(index);
+		}
+		
+		std::cout << "Playback finished" << std::endl;
 	}
+
 
 #ifdef _DEBUG
 	std::cout << "Playback finished" << std::endl;
 #endif
 
-	playing = false;
 	return;
 }
 
 void play() {
 	recording = false;
 	
-	if (playing == false) {
-		playing = true;
-		std::thread playTh(playThread);
-		playTh.detach();
-	}
-	else
-		playing = false;
-
-	std::cout << playing << std::endl;
+	std::thread playTh(playThread);
+	playTh.detach();
 }
